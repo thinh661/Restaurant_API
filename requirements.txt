@@ -1,0 +1,5 @@
+FLask 
+dotenv
+flask_sqlalchemy
+flask_marshmallow
+sqlalchemy
