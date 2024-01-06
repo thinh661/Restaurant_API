@@ -4,7 +4,7 @@ from .models import Users,Nhanvien,Khachhang
 from .users.controller import users
 from .quanli.controller import quanli
 from .khachhang.controller import khachhang
-
+from .hoadon.controller import hoadon
 
 def create_db(app):
     db.create_all(app)
@@ -19,4 +19,5 @@ def create_app(config_file = "config.py"):
     app.register_blueprint(users)
     app.register_blueprint(quanli)
     app.register_blueprint(khachhang)
+    app.register_blueprint(hoadon)
     return app

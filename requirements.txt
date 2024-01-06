@@ -3,3 +3,4 @@ dotenv
 flask_sqlalchemy
 flask_marshmallow
 sqlalchemy
+flask-jwt-extended

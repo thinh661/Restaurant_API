@@ -19,3 +19,21 @@ class BanSchema(ma.Schema):
 class HoadonSchema(ma.Schema):
     class Meta():
         fields = ('ma_hd','ma_kh','ma_ban','ngay','tienmonan','ma_voucher','tiengiam','tinh trang','loai')
+        
+class CthdSchema(ma.Schema):
+    class Meta():
+        fields = ('ma_hd','ma_mon','soluong','thanhtien')
+        
+class ThucdonSchema(ma.Schema):
+    class Meta():
+        fields = ('ma_td','ten_td','mo_ta')
+
+class MonanSchema(ma.Schema):
+    class Meta():
+        fields = ('ma_mon','ma_td','ten_mon','gia','soluong')
+        
+class VoucherSchema(ma.Schema):
+    class Meta():
+        fields = ('ma_voucher','phantram','dieukien','diem','soluong')
+
+

@@ -77,10 +77,11 @@ class Monan(db.Model):
     ten_mon = Column(String(255), nullable=False)
     gia = Column(Float, nullable=False)
     soluong = Column(Integer)
-    thucdon = relationship('Thucdon', backref='monan')
+    # thucdon = relationship('Thucdon', backref='monan')
 
-    def __init__(self, ma_td, ten_mon, gia, soluong=None):
+    def __init__(self,ma_mon, ma_td, ten_mon, gia, soluong=0):
         self.ma_td = ma_td
+        self.ma_mon = ma_mon
         self.ten_mon = ten_mon
         self.gia = gia
         self.soluong = soluong
@@ -90,16 +91,16 @@ class Hoadon(db.Model):
     ma_kh = Column(Integer,ForeignKey('khachhang.ma_kh'))
     ma_ban = Column(Integer,ForeignKey('ban.ma_ban'))
     ngay = Column(DateTime,default=func.now())
+    tienmonan = Column(Float)
     ma_voucher = Column(Integer,ForeignKey('voucher.ma_voucher'))
     tiengiam = Column(Float)
     tinhtrang = Column(String(50))
     loai = Column(String(50))
     
-    def __init__(self,ma_hd,ma_kh,ma_ban,ma_voucher,tiengiam,tinhtrang="Chua thanh toan",loai="0"):
+    def __init__(self,ma_hd,ma_ban,tienmonan=0,tiengiam = 0,tinhtrang="Chua thanh toan",loai="0"):
         self.ma_hd = ma_hd
         self.ma_ban= ma_ban
-        self.ma_kh = ma_kh
-        self.ma_voucher = ma_voucher
+        self.tienmonan = tienmonan
         self.tiengiam = tiengiam
         self.tinhtrang = tinhtrang
         
