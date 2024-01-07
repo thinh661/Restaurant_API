@@ -71,10 +71,10 @@ def create_phieuorder():
         phieuorder = Phieuorder(ma_phieu=ma_phieu,thanhtien=0)
         db.session.add(phieuorder)
         db.session.commit()
-        return jsonify({"message":"Create success!"}),200
+        return jsonify({"message":"Create success!"},{"ma_phieu" : f"{ma_phieu}"}),200
     except Exception:
         db.session.rollback()
-        return jsonify({"message":"Can create!"}),409
+        return jsonify({"message":"Can't create!"}),409
 
 def add_thanhtien_into_phieuorder(ma_phieu):
     phieuorder = Phieuorder.query.filter_by(ma_phieu=ma_phieu).first()

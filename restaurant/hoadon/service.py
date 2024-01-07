@@ -130,6 +130,8 @@ def thanh_toan_bill(ma_hd):
                 if khachhang.diemtichluy > voucher.diem:
                     khachhang.diemtichluy -= voucher.diem
                     voucher.soluong -= 1
+                else:
+                    khachhang.diemtichluy += 100
             if (hoadon.ma_kh is not None) and (hoadon.ma_voucher is None):
                 khachhang = Khachhang.query.filter_by(ma_kh=hoadon.ma_kh).first()
                 khachhang.diemtichluy += 100 
@@ -161,10 +163,12 @@ def add_monan_into_cthd():
             if check_cthd:
                 check_cthd.soluong += soluong
                 check_cthd.thanhtien += thanhtien
+                monan.soluong -= soluong
                 db.session.commit()
                 return jsonify({"message":"Add success!"}),201
             else:
                 cthd = Cthd(ma_hd=ma_hd,ma_mon=ma_mon,soluong=soluong,thanhtien=thanhtien)
+                monan.soluong -= soluong
                 db.session.add(cthd)
                 db.session.commit()
                 return jsonify({"message":"Add success!"}),201

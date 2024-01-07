@@ -40,11 +40,10 @@ class Nhanvien(db.Model):
     user_name = Column(String(50),ForeignKey('users.user_name'))
     sdt = Column(String(50))
     
-    def __init__(self,ma_nv,hoten,chucvu,user_name,sdt):
+    def __init__(self,ma_nv,hoten,chucvu,sdt):
         self.hoten = hoten
         self.ma_nv = ma_nv
         self.chucvu = chucvu
-        self.user_name = user_name
         self.sdt = sdt
         
 class Ban(db.Model):
@@ -77,7 +76,6 @@ class Monan(db.Model):
     ten_mon = Column(String(255), nullable=False)
     gia = Column(Float, nullable=False)
     soluong = Column(Integer)
-    # thucdon = relationship('Thucdon', backref='monan')
 
     def __init__(self,ma_mon, ma_td, ten_mon, gia, soluong=0):
         self.ma_td = ma_td

@@ -4,6 +4,7 @@ from restaurant.models import Users,Nhanvien,Khachhang,Ban,Hoadon,Thucdon,Monan,
 from flask import request,jsonify
 from sqlalchemy.sql import func
 import json
+from werkzeug.security import generate_password_hash,check_password_hash
 
 Nhanvien_schema = NhanvienSchema()
 Nhanviens_schema = NhanvienSchema(many=True)
@@ -33,36 +34,20 @@ def get_staff_by_name(name):
 
 def add_staff():
     data = request.json
-    user_name = data['user_name']
-    email = data['email']
-    role = data['role']
-    password = data['password']
     hoten = data['hoten']
     chucvu = data['chucvu']
     sdt = data['sdt']
-    
     if data :
-        staff_user = Users.query.filter_by(user_name=user_name).first()
-        if staff_user:
-            return jsonify({"message":"user_name exist!"}),409
-        else:
-            try:
-                user = Users(user_name=user_name,password=password,email=email,role=role)
-                db.session.add(user)
-                db.session.commit()
-            except IndentationError:
-                db.session.rollback()
-                return jsonify({"message":"Can't create user!"}),409
-            try:
-                max_ma_nv = db.session.query(func.max(Nhanvien.ma_nv)).scalar()
-                ma_nv = max_ma_nv + 1 if max_ma_nv is not None else 1
-                nhan_vien = Nhanvien(ma_nv=ma_nv,hoten=hoten,chucvu=chucvu,user_name=user_name,sdt=sdt)
-                db.session.add(nhan_vien)
-                db.session.commit()
-                return jsonify({"message":"SignUp Success!"}),201
-            except IndentationError:
-                db.session.rollback()
-                return jsonify({"message":"Can't create infor user!"}),409
+        try:
+            max_ma_nv = db.session.query(func.max(Nhanvien.ma_nv)).scalar()
+            ma_nv = max_ma_nv + 1 if max_ma_nv is not None else 1
+            nhan_vien = Nhanvien(ma_nv=ma_nv,hoten=hoten,chucvu=chucvu,sdt=sdt)
+            db.session.add(nhan_vien)
+            db.session.commit()
+            return jsonify({"message":"SignUp Success!"}),201
+        except IndentationError:
+            db.session.rollback()
+            return jsonify({"message":"Can't create infor user!"}),409
     else:
         return jsonify({"message": "Request Error!"}),400
     
