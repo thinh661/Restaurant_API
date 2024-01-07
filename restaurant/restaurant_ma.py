@@ -35,5 +35,17 @@ class MonanSchema(ma.Schema):
 class VoucherSchema(ma.Schema):
     class Meta():
         fields = ('ma_voucher','phantram','dieukien','diem','soluong')
+        
+class NguyenlieuSchema(ma.Schema):
+    class Meta():
+        fields = ('ma_nl','ten_nl','dongia','donvi')
+    
+class PhieuorderSchema(ma.Schema):
+    class Meta():
+        fields = ('ma_phieu','ngayorder','thanhtien')
+
+class CtorderSchema(ma.Schema):
+    class Meta():
+        fields = ('ma_phieu','ma_nl','soluong','thanhtien')
 
 

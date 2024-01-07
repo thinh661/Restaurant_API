@@ -20,16 +20,16 @@ Vouchers_schema = VoucherSchema(many=True)
 def get_all_staff():
     all_staff = Nhanvien.query.all()
     if all_staff :
-        return Nhanviens_schema.jsonify(all_staff)
+        return Nhanviens_schema.jsonify(all_staff),200
     else:
-        return jsonify({"message":"Not found staff!"})
+        return jsonify({"message":"Not found staff!"}),400
 
 def get_staff_by_name(name):
     staff = Nhanvien.query.filter(func.lower(Nhanvien.hoten) == func.lower(name)).first()
     if staff is not None:
-        return Nhanvien_schema.jsonify(staff)
+        return Nhanvien_schema.jsonify(staff),200
     else:
-            return jsonify({"message":"Not found staff!"})
+        return jsonify({"message":"Not found staff!"}),400
 
 def add_staff():
     data = request.json
@@ -44,7 +44,7 @@ def add_staff():
     if data :
         staff_user = Users.query.filter_by(user_name=user_name).first()
         if staff_user:
-            return jsonify({"message":"user_name exist!"})
+            return jsonify({"message":"user_name exist!"}),409
         else:
             try:
                 user = Users(user_name=user_name,password=password,email=email,role=role)
@@ -52,19 +52,19 @@ def add_staff():
                 db.session.commit()
             except IndentationError:
                 db.session.rollback()
-                return jsonify({"message":"Can't create user!"})
+                return jsonify({"message":"Can't create user!"}),409
             try:
                 max_ma_nv = db.session.query(func.max(Nhanvien.ma_nv)).scalar()
                 ma_nv = max_ma_nv + 1 if max_ma_nv is not None else 1
                 nhan_vien = Nhanvien(ma_nv=ma_nv,hoten=hoten,chucvu=chucvu,user_name=user_name,sdt=sdt)
                 db.session.add(nhan_vien)
                 db.session.commit()
-                return jsonify({"message":"SignUp Success!"})
+                return jsonify({"message":"SignUp Success!"}),201
             except IndentationError:
                 db.session.rollback()
-                return jsonify({"message":"Can't create infor user!"})
+                return jsonify({"message":"Can't create infor user!"}),409
     else:
-        return jsonify({"message": "Request Error!"})
+        return jsonify({"message": "Request Error!"}),400
     
 
 def delete_staff(ma_nv):
@@ -73,12 +73,12 @@ def delete_staff(ma_nv):
         if user :
             db.session.delete(user)
             db.session.commit()
-            return jsonify({"message":"Delete Access!"})
+            return jsonify({"message":"Delete Access!"}),200
         else:
-            return jsonify({"message" : "Not found staff!"})
+            return jsonify({"message" : "Not found staff!"}),409
     except IndentationError:
             db.session.rollback()
-            return jsonify({"message":"Can't Delete Staff!"})
+            return jsonify({"message":"Can't Delete Staff!"}),409
         
 
 def fix_staff(ma_nv: int):
@@ -93,14 +93,13 @@ def fix_staff(ma_nv: int):
                 staff.chucvu = data['chucvu']
             if 'sdt' in data and data['sdt'] is not None:
                 staff.sdt = data['sdt']
-            
             db.session.commit()
-            return jsonify({"message": "Update Access!"})
+            return jsonify({"message": "Update Access!"}),200
         except Exception:
             db.session.rollback()
-            return jsonify({"message": "Request Error!"})
+            return jsonify({"message": "Request Error!"}),400
     else:
-        return jsonify({"message": "Not found staff!"})
+        return jsonify({"message": "Not found staff!"}),400
     
 
 # Quản lí bàn 
@@ -115,18 +114,18 @@ def add_table():
         ma_ban = max_ma_ban + 1 if max_ma_ban is not None else 1
         check_ban = Ban.query.filter(func.lower(Ban.ten_ban) == func.lower(ten_ban)).first()
         if check_ban:
-            return jsonify({"message":"Name of table is exist!"})
+            return jsonify({"message":"Name of table is exist!"}),400
         else:
             try:
                 ban = Ban(ma_ban=ma_ban,ten_ban=ten_ban,vitri=vitri,soghe=soghe)
                 db.session.add(ban)
                 db.session.commit()
-                return jsonify({"message":"Add Table Access!"})
+                return jsonify({"message":"Add Table Access!"}),201
             except Exception:
                 db.session.rollback()
-                return jsonify({"message":"Can't Add Table!"})
+                return jsonify({"message":"Can't Add Table!"}),409
     else:
-        return jsonify({"message":"Request Error!"})
+        return jsonify({"message":"Request Error!"}),400
 
 def delete_table(ma_ban):
     ban = Ban.query.filter_by(ma_ban=ma_ban).first()
@@ -134,26 +133,26 @@ def delete_table(ma_ban):
         try:
             db.session.delete(ban)
             db.session.commit()
-            return jsonify({"message":"Delete Table Access!"})
-        except Exception as e :
+            return jsonify({"message":"Delete Table Access!"}),200
+        except Exception:
             db.session.rollback()
-            return jsonify({"message":f"Error : {e}"})
+            return jsonify({"message":"Can't delete"}),409
     else:
-        return jsonify({"message":"Not found Table!"})
+        return jsonify({"message":"Not found Table!"}),400
 
 def get_all_table():
     all_ban = Ban.query.all()
     if all_ban:
-        return Bans_schema.jsonify(all_ban)
+        return Bans_schema.jsonify(all_ban),200
     else:
-        return jsonify({"message" : "Not found Table!"})
+        return jsonify({"message" : "Not found Table!"}),400
     
 def get_table_by_name(ten_ban):
     ban = Ban.query.filter_by(ten_ban=ten_ban).first()
     if ban:
-        return Ban_schema.jsonify(ban)
+        return Ban_schema.jsonify(ban),200
     else:
-        return jsonify({"message":"Not found Table!"})
+        return jsonify({"message":"Not found Table!"}),400
 
 def book_seat(ten_ban):
     ban = Ban.query.filter_by(ten_ban=ten_ban).first()
@@ -162,14 +161,14 @@ def book_seat(ten_ban):
             try:
                 ban.tinhtrang = 'Da dat truoc'
                 db.session.commit()
-                return jsonify({"message":"Booking Access!"})
-            except Exception as e :
+                return jsonify({"message":"Booking Access!"}),200
+            except Exception:
                 db.session.rollback()
-                return jsonify({"message":f"Error : {e}"})
+                return jsonify({"message":"Can't Booking!"}),409
         else:
-            return jsonify({"message":"Can't Booking!"})
+            return jsonify({"message":"Can't Booking!"}),409
     else:
-        return jsonify({"message":"Not found Table!"})
+        return jsonify({"message":"Not found Table!"}),400
     
 def finish_table(ten_ban):
     ban = Ban.query.filter_by(ten_ban=ten_ban).first()
@@ -183,10 +182,26 @@ def finish_table(ten_ban):
                 db.session.rollback()
                 return jsonify({"message":f"Error : {e}"}),409
         else:
+            return jsonify({"message":"Can't Finish!"}),409
+    else:
+        return jsonify({"message":"Not found Table!"}),400
+    
+def start_table(ten_ban):
+    ban = Ban.query.filter_by(ten_ban=ten_ban).first()
+    if ban:
+        if ban.tinhtrang == 'Con trong' or 'Da dat truoc':
+            try:
+                ban.tinhtrang = 'Dang dung bua'
+                db.session.commit()
+                return jsonify({"message":"Booking Access!"}),200
+            except Exception as e :
+                db.session.rollback()
+                return jsonify({"message":f"Error : {e}"}),409
+        else:
             return jsonify({"message":"Can't Booking!"}),409
     else:
         return jsonify({"message":"Not found Table!"}),400
-
+    
 def cancel_book_seat(ten_ban):
     ban = Ban.query.filter_by(ten_ban=ten_ban).first()
     if ban:
@@ -194,14 +209,14 @@ def cancel_book_seat(ten_ban):
             try:
                 ban.tinhtrang = 'Con trong'
                 db.session.commit()
-                return jsonify({"message":"Access!"})
-            except Exception as e :
+                return jsonify({"message":"Access!"}),200
+            except Exception:
                 db.session.rollback()
-                return jsonify({"message":f"Error : {e}"})
+                return jsonify({"message":"Cancle Booking Error!"}),409
         else:
-            return jsonify({"message":"Cancle Booking Error!"})
+            return jsonify({"message":"Cancle Booking Error!"}),409
     else:
-        return jsonify({"message":"Not found Table!"})
+        return jsonify({"message":"Not found Table!"}),400
 
 # Quản lí thực đơn 
 

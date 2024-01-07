@@ -5,7 +5,7 @@ from .service import (
     get_all_table, get_table_by_name, add_thuc_don, del_thuc_don,
     add_mon_an, del_mon_an, get_all_mon_an, get_infor_monan_by_mamon,
     get_infor_voucher, get_all_voucher,update_gia_monan,update_soluong_monan,
-    add_voucher,del_voucher,update_voucher,update_sl_voucher
+    add_voucher,del_voucher,update_voucher,update_sl_voucher,finish_table,start_table
 )
 
 
@@ -58,6 +58,14 @@ def book_table(ten_ban):
 @quanli.route('/api/table/cancel-booking/<string:ten_ban>',methods=['PUT'])
 def cancel_booking(ten_ban):
     return cancel_book_seat(ten_ban=ten_ban)
+
+@quanli.route('/api/table/finish/<string:ten_ban>',methods=['PUT'])
+def finish_tab(ten_ban):
+    return finish_table(ten_ban=ten_ban)
+
+@quanli.route('/api/table/start/<string:ten_ban>',methods=['PUT'])
+def start_tab(ten_ban):
+    return start_table(ten_ban=ten_ban)
 
 # Quản lí thực đơn
 

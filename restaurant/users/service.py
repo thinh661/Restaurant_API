@@ -21,7 +21,7 @@ def signup_khach_hang_service():
         diemtichluy = 0
         user_check = Users.query.filter_by(user_name=user_name).first()
         if user_check:
-            return jsonify({"message":"user_name exist!"})
+            return jsonify({"message":"user_name exist!"}),409
         else:
             try:
                 password = generate_password_hash(password)
@@ -30,19 +30,19 @@ def signup_khach_hang_service():
                 db.session.commit()
             except IndentationError:
                 db.session.rollback()
-                return jsonify({"message":"Can't create user!"})
+                return jsonify({"message":"Can't create user!"}),409
             try:
                 max_ma_kh = db.session.query(func.max(Khachhang.ma_kh)).scalar()
                 ma_kh = max_ma_kh + 1 if max_ma_kh is not None else 1
                 khach_hang = Khachhang(ma_kh=ma_kh,hoten=hoten,user_name=user_name,diemtichluy=diemtichluy,doanhthu=doanhthu)
                 db.session.add(khach_hang) 
                 db.session.commit()
-                return jsonify({"message":"SignUp Success!"})
+                return jsonify({"message":"SignUp Success!"}),201
             except IndentationError:
                 db.session.rollback()
-                return jsonify({"message":"Can't create infor user!"})
+                return jsonify({"message":"Can't create infor user!"}),409
     else:
-        return jsonify({"message": "Request Error!"})   
+        return jsonify({"message": "Request Error!"})  ,400
     
 
 def login_service():
@@ -51,20 +51,20 @@ def login_service():
         user_name = data['user_name']
         password = data['password']
     except KeyError:
-        return jsonify({"message": "Request error! Missing user_name or password."})
+        return jsonify({"message": "Request error! Missing user_name or password."}),400
     
     if data and ('user_name' in data) and ('password' in data) :
         user = Users.query.filter_by(user_name = user_name).first()
         if user:
             role = user.role
             if check_password_hash(user.password,password) :
-                return jsonify({"message" : "Login Access!"},{"role": f"{role}"})
+                return jsonify({"message" : "Login Access!"},{"role": f"{role}"}),200
             else:
-                return jsonify({"message" : "Password error!"})
+                return jsonify({"message" : "Password error!"}),401
         else:
-            return jsonify({"message" : "Not found user"})
+            return jsonify({"message" : "Not found user"}),401
     else:
-        return jsonify({"message" : "Request error!"})
+        return jsonify({"message" : "Request error!"}),400
 
 def change_password_service():
     data = request.json
@@ -80,13 +80,13 @@ def change_password_service():
                 try:
                     user.password = password_new
                     db.session.commit()
-                    return jsonify({"message" : "Change Access!"})
+                    return jsonify({"message" : "Change Access!"}),200
                 except IndentationError:
                     db.session.rollback()
-                    return jsonify({"message":"Can't change password!"})
+                    return jsonify({"message":"Can't change password!"}),409
             else:
-                return jsonify({"message" : "Password Incorrect!"})
+                return jsonify({"message" : "Password Incorrect!"}),401
         else:
-            return jsonify({"message" : "Not found user!"})   
+            return jsonify({"message" : "Not found user!"}),401
     else :
-        return jsonify({"message" : "Request Eror!"}) 
+        return jsonify({"message" : "Request Eror!"}),400

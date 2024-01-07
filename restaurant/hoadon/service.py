@@ -80,18 +80,16 @@ def add_ma_kh_into_bill():
 
 def add_tienmonan_into_bill(ma_hd):
     hoadon = Hoadon.query.filter_by(ma_hd=ma_hd).first()
-    if hoadon:
+    if hoadon and hoadon.tinhtrang == 'Chua thanh toan':
         try:
-            lst = get_detail_bill_by_ma_hd(ma_hd=ma_hd)
-            res = 0
-            for i in lst:
-                res += i['thanhtien']
-            hoadon.tienmonan = res
+            total_thanhtien = db.session.query(func.sum(Cthd.thanhtien)).filter_by(ma_hd=ma_hd).scalar()
+            total_thanhtien = total_thanhtien if total_thanhtien is not None else 0
+            hoadon.tienmonan = total_thanhtien
             db.session.commit()
             return jsonify({"message":"Add Success!"}),200
         except Exception:
             db.session.rollback()
-            return jsonify({"message":"Can't add ma_kh!"}),409
+            return jsonify({"message":"Can't add tienmonan into bill!"}),409
     else:
         return jsonify({"message":"Not found detail bill!"}),400
     
@@ -102,7 +100,7 @@ def add_voucher():
         hoadon = Hoadon.query.filter_by(ma_hd=data['ma_hd']).first()
         if hoadon and (hoadon.ma_voucher is None):
             voucher = Voucher.query.filter_by(ma_voucher=data['ma_voucher']).first()
-            if voucher and (voucher.soluong <= 0):
+            if voucher and (voucher.soluong > 0):
                 try:
                     hoadon.ma_voucher = data['ma_voucher']
                     if hoadon.ma_kh is not None:
@@ -124,16 +122,17 @@ def add_voucher():
 
 def thanh_toan_bill(ma_hd):
     hoadon = Hoadon.query.filter_by(ma_hd=ma_hd).first()
-    if hoadon:
+    if hoadon and hoadon.tinhtrang == 'Chua thanh toan':
         try:
             if (hoadon.ma_kh is not None) and (hoadon.ma_voucher is not None):
                 khachhang = Khachhang.query.filter_by(ma_kh=hoadon.ma_kh).first()
                 voucher = Voucher.query.filter_by(ma_voucher=hoadon.ma_voucher).first()
-                khachhang.diemtichluy -= voucher.diem
-                voucher.soluong -= 1
+                if khachhang.diemtichluy > voucher.diem:
+                    khachhang.diemtichluy -= voucher.diem
+                    voucher.soluong -= 1
             if (hoadon.ma_kh is not None) and (hoadon.ma_voucher is None):
                 khachhang = Khachhang.query.filter_by(ma_kh=hoadon.ma_kh).first()
-                khachhang.diemtichluy += 100
+                khachhang.diemtichluy += 100 
             hoadon.tinhtrang = 'Da thanh toan'
             tongtien = hoadon.tienmonan - hoadon.tiengiam
             db.session.commit()
@@ -142,7 +141,7 @@ def thanh_toan_bill(ma_hd):
                 db.session.rollback()
                 return jsonify({"message":"Can't payment bill!"}),409
     else:
-        return jsonify({"message": "Not found bill!"}),400  
+        return jsonify({"message": "Not found bill or bill paymented!"}),400  
 
 # Quản lí chi tiết hóa đơn
 

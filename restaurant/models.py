@@ -103,6 +103,7 @@ class Hoadon(db.Model):
         self.tienmonan = tienmonan
         self.tiengiam = tiengiam
         self.tinhtrang = tinhtrang
+        self.loai = loai
         
 class Voucher(db.Model):
     ma_voucher = Column(Integer, primary_key=True)
@@ -135,9 +136,8 @@ class Phieuorder(db.Model):
     ngayorder = Column(DateTime,default=func.now())
     thanhtien = Column(Float)
     
-    def __init__(self,ma_phieu,ngayorder,thanhtien=0):
+    def __init__(self,ma_phieu,thanhtien=0):
         self.ma_phieu = ma_phieu
-        self.ngayorder = ngayorder
         self.thanhtien = thanhtien
     
 class Nguyenlieu(db.Model):
@@ -146,13 +146,13 @@ class Nguyenlieu(db.Model):
     dongia = Column(Float,nullable=False)
     donvi = Column(String)
     
-    def __init__(self,ma_nl,ten_nl,dongia,donvi='g'):
+    def __init__(self,ma_nl,ten_nl,dongia=0,donvi='g'):
         self.ma_nl = ma_nl
         self.ten_nl = ten_nl
         self.dongia = dongia
         self.donvi = donvi
     
-class Ctorer(db.Model):
+class Ctorder(db.Model):
     ma_phieu = Column(Integer,ForeignKey('phieuorder.ma_phieu'),primary_key=True)
     ma_nl = Column(Integer,ForeignKey('nguyenlieu.ma_nl'),primary_key=True)
     soluong = Column(Integer)

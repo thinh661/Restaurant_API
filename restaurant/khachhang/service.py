@@ -10,22 +10,28 @@ Khachhangs_schema = KhachhangChema(many=True)
 
 def get_info_khach_hang(user_name):
     user = Khachhang.query.filter_by(user_name=user_name).first()
-    print(user.hoten)
     if user :
-        return Khachhang_schema.jsonify(user)
+        return Khachhang_schema.jsonify(user),200
     else:
-        return jsonify({"message":"Not found user!"})
+        return jsonify({"message":"Not found user!"}),400
 
 def update_hoten(user_name):
     user = Khachhang.query.filter_by(user_name=user_name).first()
-    hoten_new = request.json['hoten']
-    try:
-        user.hoten = hoten_new
-        db.session.commit()
-        return jsonify({"message":"Update Access!"})
-    except IndentationError:
-        db.session.rollback()
-        return jsonify({"message":"Can't Update!"})
+    if user :
+        data = request.json
+        if data and ('hoten' in data):
+            hoten_new = request.json['hoten']
+            try:
+                user.hoten = hoten_new
+                db.session.commit()
+                return jsonify({"message":"Update Access!"}),200
+            except IndentationError:
+                db.session.rollback()
+                return jsonify({"message":"Can't Update!"}),409
+        else:
+            return jsonify({"message":"Not found User!"}),400
+    else:
+        return jsonify({"message":"Not found user!"}),400
         
 
 def book_seat(ten_ban):
@@ -35,14 +41,14 @@ def book_seat(ten_ban):
             try:
                 ban.tinhtrang = 'Da dat truoc'
                 db.session.commit()
-                return jsonify({"message":"Booking Access!"})
-            except Exception as e :
+                return jsonify({"message":"Booking Access!"}),200
+            except Exception:
                 db.session.rollback()
-                return jsonify({"message":f"Error : {e}"})
+                return jsonify({"message":"Can't Booking!"}),409
         else:
-            return jsonify({"message":"Can't Booking!"})
+            return jsonify({"message":"Can't Booking!"}),409
     else:
-        return jsonify({"message":"Not found Table!"})
+        return jsonify({"message":"Not found Table!"}),400
 
 def cancel_book_seat(ten_ban):
     ban = Ban.query.filter_by(ten_ban=ten_ban).first()
@@ -51,11 +57,13 @@ def cancel_book_seat(ten_ban):
             try:
                 ban.tinhtrang = 'Con trong'
                 db.session.commit()
-                return jsonify({"message":"Access!"})
-            except Exception as e :
+                return jsonify({"message":"Access!"}),200
+            except Exception:
                 db.session.rollback()
-                return jsonify({"message":f"Error : {e}"})
+                return jsonify({"message":"Cancle Booking Error!"}),409
         else:
-            return jsonify({"message":"Cancle Booking Error!"})
+            return jsonify({"message":"Cancle Booking Error!"}),409
     else:
-        return jsonify({"message":"Not found Table!"})
+        return jsonify({"message":"Not found Table!"}),400
+    
+
