@@ -5,6 +5,8 @@ from flask import request,jsonify
 from sqlalchemy.sql import func
 import json
 from werkzeug.security import generate_password_hash,check_password_hash
+from flask_jwt_extended import jwt_required,current_user
+
 
 Nhanvien_schema = NhanvienSchema()
 Nhanviens_schema = NhanvienSchema(many=True)
@@ -17,22 +19,30 @@ Vouchers_schema = VoucherSchema(many=True)
 
 
 # Quản lí nhân viên
-
+@jwt_required()
 def get_all_staff():
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     all_staff = Nhanvien.query.all()
     if all_staff :
         return Nhanviens_schema.jsonify(all_staff),200
     else:
         return jsonify({"message":"Not found staff!"}),400
 
+@jwt_required()
 def get_staff_by_name(name):
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     staff = Nhanvien.query.filter(func.lower(Nhanvien.hoten) == func.lower(name)).first()
     if staff is not None:
         return Nhanvien_schema.jsonify(staff),200
     else:
         return jsonify({"message":"Not found staff!"}),400
 
+@jwt_required()
 def add_staff():
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     data = request.json
     hoten = data['hoten']
     chucvu = data['chucvu']
@@ -52,7 +62,10 @@ def add_staff():
         return jsonify({"message": "Request Error!"}),400
     
 
+@jwt_required()
 def delete_staff(ma_nv):
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     try:
         user = Nhanvien.query.filter_by(ma_nv=ma_nv).first()
         if user :
@@ -66,7 +79,10 @@ def delete_staff(ma_nv):
             return jsonify({"message":"Can't Delete Staff!"}),409
         
 
+@jwt_required()
 def fix_staff(ma_nv: int):
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     data = request.json
     staff = Nhanvien.query.filter_by(ma_nv=ma_nv).first()
 
@@ -89,6 +105,7 @@ def fix_staff(ma_nv: int):
 
 # Quản lí bàn 
 
+@jwt_required()
 def add_table():
     data = request.json
     if data and ('ten_ban' in data) and ('vitri' in data) and ('soghe' in data) :
@@ -112,6 +129,7 @@ def add_table():
     else:
         return jsonify({"message":"Request Error!"}),400
 
+@jwt_required()
 def delete_table(ma_ban):
     ban = Ban.query.filter_by(ma_ban=ma_ban).first()
     if ban:
@@ -125,13 +143,15 @@ def delete_table(ma_ban):
     else:
         return jsonify({"message":"Not found Table!"}),400
 
+
 def get_all_table():
     all_ban = Ban.query.all()
     if all_ban:
         return Bans_schema.jsonify(all_ban),200
     else:
         return jsonify({"message" : "Not found Table!"}),400
-    
+
+
 def get_table_by_name(ten_ban):
     ban = Ban.query.filter_by(ten_ban=ten_ban).first()
     if ban:
@@ -139,6 +159,7 @@ def get_table_by_name(ten_ban):
     else:
         return jsonify({"message":"Not found Table!"}),400
 
+@jwt_required()
 def book_seat(ten_ban):
     ban = Ban.query.filter_by(ten_ban=ten_ban).first()
     if ban:
@@ -155,6 +176,7 @@ def book_seat(ten_ban):
     else:
         return jsonify({"message":"Not found Table!"}),400
     
+@jwt_required()
 def finish_table(ten_ban):
     ban = Ban.query.filter_by(ten_ban=ten_ban).first()
     if ban:
@@ -170,7 +192,8 @@ def finish_table(ten_ban):
             return jsonify({"message":"Can't Finish!"}),409
     else:
         return jsonify({"message":"Not found Table!"}),400
-    
+  
+@jwt_required()  
 def start_table(ten_ban):
     ban = Ban.query.filter_by(ten_ban=ten_ban).first()
     if ban:
@@ -186,7 +209,8 @@ def start_table(ten_ban):
             return jsonify({"message":"Can't Booking!"}),409
     else:
         return jsonify({"message":"Not found Table!"}),400
-    
+
+@jwt_required() 
 def cancel_book_seat(ten_ban):
     ban = Ban.query.filter_by(ten_ban=ten_ban).first()
     if ban:
@@ -205,7 +229,10 @@ def cancel_book_seat(ten_ban):
 
 # Quản lí thực đơn 
 
+@jwt_required()
 def add_thuc_don():
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     data = request.json
     if data :
         if "ten_td" in data :
@@ -233,7 +260,11 @@ def add_thuc_don():
     else :
         return jsonify({"message":"Request Error!"}),400
     
+@jwt_required()
+
 def del_thuc_don(ma_td):
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     thuc_don = Thucdon.query.filter_by(ma_td=ma_td).first()
     if thuc_don :
         try:
@@ -248,8 +279,11 @@ def del_thuc_don(ma_td):
  
  
  # Quản lí món ăn
-    
+
+@jwt_required()
 def add_mon_an():
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     data = request.json
     if data:
         if ('ma_td' in data) and ('ten_mon' in data) and ('gia' in data):
@@ -275,7 +309,10 @@ def add_mon_an():
     else:
         return jsonify({"message":"Request Error!"}),400
 
+@jwt_required()
 def del_mon_an(ma_mon):
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     monan = Monan.query.filter_by(ma_mon=ma_mon).first()
     if monan:
         try:
@@ -288,7 +325,8 @@ def del_mon_an(ma_mon):
     else:
         return jsonify({"message":"Not found Mon An!"}),404
     
-
+    
+@jwt_required()
 def get_all_mon_an():
     all_monan = Monan.query.all()
     if all_monan:
@@ -296,6 +334,7 @@ def get_all_mon_an():
     else:
         return jsonify({"message":"Not found Mon an!"}),404
 
+@jwt_required()
 def get_infor_monan_by_mamon(ma_mon):
     monan = Monan.query.filter_by(ma_mon=ma_mon).first()
     if monan:
@@ -303,7 +342,10 @@ def get_infor_monan_by_mamon(ma_mon):
     else:
         return jsonify({"message":"Not found Mon an!"}),404
 
+@jwt_required()
 def update_gia_monan():
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     data = request.json
     if data and ('ma_mon' in data) and ('gia' in data):
         ma_mon = data['ma_mon']
@@ -322,7 +364,11 @@ def update_gia_monan():
     else:
         return jsonify({"message":"Request Error!"}),400
 
+
+@jwt_required()
 def update_soluong_monan():
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     data = request.json
     if data and ('ma_mon' in data) and ('soluong' in data):
         ma_mon = data['ma_mon']
@@ -346,7 +392,10 @@ def update_soluong_monan():
 
 # Quản lí voucher
 
+@jwt_required()
 def add_voucher():
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     data = request.json
     if data and ('ma_voucher' in data) and ('phantram' in data) and ('dieukien' in data) and ('diem' in data) and ('soluong' in data):
         ma_voucher = data['ma_voucher']
@@ -368,7 +417,10 @@ def add_voucher():
     else:
         return jsonify({"message":"Request Error!"}),400
 
+@jwt_required()
 def del_voucher(ma_voucher):
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     voucher = Voucher.query.filter_by(ma_voucher=ma_voucher).first()
     if voucher:
         try:
@@ -381,7 +433,10 @@ def del_voucher(ma_voucher):
     else:
        return jsonify({"message":"Not found Voucher!"}),404 
 
+@jwt_required()
 def update_voucher():
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     data = request.json
     if not data or 'ma_voucher' not in data:
         return jsonify({"message": "Request Error!"}), 400
@@ -403,7 +458,7 @@ def update_voucher():
     return jsonify({"message": "Update successfully"}), 200
 
         
-
+@jwt_required()
 def get_all_voucher():
     all_voucher = Voucher.query.all()
     if all_voucher:
@@ -411,6 +466,7 @@ def get_all_voucher():
     else:
        return jsonify({"message": "Not found voucher!"}), 404 
 
+@jwt_required()
 def get_infor_voucher(ma_voucher):
     voucher = Voucher.query.filter_by(ma_voucher=ma_voucher).first()
     if voucher :
@@ -418,7 +474,10 @@ def get_infor_voucher(ma_voucher):
     else:
         return jsonify({"message": "Not found voucher!"}), 404 
 
+@jwt_required()
 def update_sl_voucher():
+    if current_user.role != 'Quan Ly':
+        return jsonify({"message":"Unauthorized"}),403
     data = request.json
     if data and ('ma_voucher' in data) and ('soluong' in data):
         voucher = Voucher.query.filter_by(ma_voucher=data['ma_voucher']).first()

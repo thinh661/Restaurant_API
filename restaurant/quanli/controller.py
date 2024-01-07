@@ -7,6 +7,7 @@ from .service import (
     get_infor_voucher, get_all_voucher,update_gia_monan,update_soluong_monan,
     add_voucher,del_voucher,update_voucher,update_sl_voucher,finish_table,start_table
 )
+from flask_jwt_extended import jwt_required
 
 
 quanli = Blueprint("quanli",__name__)

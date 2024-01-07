@@ -4,19 +4,22 @@ from restaurant.models import Users,Nhanvien,Khachhang,Ban
 from flask import request,jsonify
 from sqlalchemy import func
 import json
+from flask_jwt_extended import jwt_required,current_user
 
 Khachhang_schema = KhachhangChema()
 Khachhangs_schema = KhachhangChema(many=True)
 
-def get_info_khach_hang(user_name):
-    user = Khachhang.query.filter_by(user_name=user_name).first()
+@jwt_required()
+def get_info_khach_hang():
+    user = Khachhang.query.filter_by(user_name=current_user.user_name).first()
     if user :
         return Khachhang_schema.jsonify(user),200
     else:
         return jsonify({"message":"Not found user!"}),400
 
-def update_hoten(user_name):
-    user = Khachhang.query.filter_by(user_name=user_name).first()
+@jwt_required()
+def update_hoten():
+    user = Khachhang.query.filter_by(user_name=current_user.user_name).first()
     if user :
         data = request.json
         if data and ('hoten' in data):
@@ -33,7 +36,7 @@ def update_hoten(user_name):
     else:
         return jsonify({"message":"Not found user!"}),400
         
-
+@jwt_required()
 def book_seat(ten_ban):
     ban = Ban.query.filter_by(ten_ban=ten_ban).first()
     if ban:
@@ -50,6 +53,8 @@ def book_seat(ten_ban):
     else:
         return jsonify({"message":"Not found Table!"}),400
 
+
+@jwt_required()
 def cancel_book_seat(ten_ban):
     ban = Ban.query.filter_by(ten_ban=ten_ban).first()
     if ban:

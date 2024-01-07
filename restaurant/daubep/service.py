@@ -4,6 +4,7 @@ from restaurant.models import Users,Nhanvien,Khachhang,Ban,Hoadon,Thucdon,Monan,
 from flask import request,jsonify
 from sqlalchemy.sql import func
 import json
+from flask_jwt_extended import jwt_required
 
 Nhanvien_schema = NhanvienSchema()
 Nhanviens_schema = NhanvienSchema(many=True)
@@ -22,7 +23,7 @@ Phieuorder_schema = PhieuorderSchema()
 Ctorders_schema = CtorderSchema(many=True)
 
 # Quản lí nguyên liệu
-
+@jwt_required()
 def add_nguyenlieu():
     data = request.json
     if data and ('ten_nl' in data) and ('dongia' in data) and ('donvi' in data):
@@ -42,6 +43,8 @@ def add_nguyenlieu():
     else:
         return jsonify({"message":"Request Error!"}),400
 
+
+@jwt_required()
 def del_nguyenlieu(ma_nl):
     nguyenlieu = Nguyenlieu.query.filter_by(ma_nl=ma_nl).first()
     if nguyenlieu:
@@ -55,6 +58,7 @@ def del_nguyenlieu(ma_nl):
     else:
         return jsonify({"message":"Not found!"}),400
 
+@jwt_required()
 def get_all_nguyenlieu():
     all_nl = Nguyenlieu.query.all()
     if all_nl:
@@ -64,6 +68,7 @@ def get_all_nguyenlieu():
 
 # Quản lí phiếu order 
 
+@jwt_required()
 def create_phieuorder():
     try:
         max_ma_phieu = db.session.query(func.max(Phieuorder.ma_phieu)).scalar()
@@ -76,6 +81,7 @@ def create_phieuorder():
         db.session.rollback()
         return jsonify({"message":"Can't create!"}),409
 
+@jwt_required()
 def add_thanhtien_into_phieuorder(ma_phieu):
     phieuorder = Phieuorder.query.filter_by(ma_phieu=ma_phieu).first()
     if not phieuorder:
@@ -90,6 +96,7 @@ def add_thanhtien_into_phieuorder(ma_phieu):
         db.session.rollback()
         return jsonify({"message":"Can add!"}),409
 
+@jwt_required()
 def get_phieuorder(ma_phieu):
     phieuorder = Phieuorder.query.filter_by(ma_phieu=ma_phieu).first()
     if phieuorder:
@@ -99,6 +106,7 @@ def get_phieuorder(ma_phieu):
 
 # Quản lí chi tiết order 
 
+@jwt_required()
 def add_nguyenlieu_into_ctorder():
     data = request.json
     if data and ('ma_phieu' in data) and ('ma_nl' in data) and ('soluong' in data):
@@ -125,6 +133,7 @@ def add_nguyenlieu_into_ctorder():
     else:
         return jsonify({"message":"Request Error!"}),400
 
+@jwt_required()
 def get_ctorder(ma_phieu):
     all_crorder = Ctorder.query.filter_by(ma_phieu=ma_phieu).all()
     if all_crorder:

@@ -5,6 +5,8 @@ from flask import request,jsonify
 from sqlalchemy import func
 import json
 from werkzeug.security import generate_password_hash,check_password_hash
+from flask_jwt_extended import create_access_token,create_refresh_token
+from flask_jwt_extended import jwt_required,current_user
 
 user_schema = UsersChema()
 users_schema = UsersChema(many=True)
@@ -59,11 +61,17 @@ def login_service():
             role = user.role
             if role =='Quan Ly' or role == 'Dau Bep':
                 if user.password == password:
-                    return jsonify({"message" : "Login Access!"},{"role": f"{role}"}),200 
+                    access_token = create_access_token(identity=user.user_name)
+                    refresh_token = create_refresh_token(identity=user.user_name)
+                    return jsonify({"access_token" : access_token},
+                                   {"role": f"{role}"}),200 
                 else:
                     return jsonify({"message" : "Password error!"}),401
             if check_password_hash(user.password,password) :
-                return jsonify({"message" : "Login Access!"},{"role": f"{role}"}),200
+                access_token = create_access_token(identity=user.user_name)
+                refresh_token = create_refresh_token(identity=user.user_name)
+                return jsonify({"access_token" : access_token},
+                                   {"role": f"{role}"}),200
             else:
                 return jsonify({"message" : "Password error!"}),401
         else:
@@ -71,10 +79,11 @@ def login_service():
     else:
         return jsonify({"message" : "Request error!"}),400
 
+@jwt_required()
 def change_password_service():
     data = request.json
-    if data and ('user_name' in data) and ('password' in data) :
-        user_name = data['user_name']
+    if data and ('password' in data) :
+        user_name = current_user.user_name
         password = data['password']
         password_new = data['password_new']
         user = Users.query.filter_by(user_name = user_name).first()

@@ -4,6 +4,7 @@ from restaurant.models import Users,Nhanvien,Khachhang,Ban,Hoadon,Thucdon,Monan,
 from flask import request,jsonify
 from sqlalchemy.sql import func
 import json
+from flask_jwt_extended import jwt_required,current_user
 
 Nhanvien_schema = NhanvienSchema()
 Nhanviens_schema = NhanvienSchema(many=True)
@@ -19,7 +20,7 @@ Cthds_schema = CthdSchema(many=True)
 Cthd_schema = CthdSchema()
 
 # Quản lí hóa đơn
-
+@jwt_required()
 def create_bill():
     data = request.json
     if data and ('ma_ban' in data) :
@@ -40,6 +41,7 @@ def create_bill():
     else:
         return jsonify({"message": "Request Error!"}), 400
 
+@jwt_required()
 def get_bill_by_ma_hd(ma_hd):
     hoadon = Hoadon.query.filter_by(ma_hd=ma_hd).first()
     if hoadon:
@@ -47,6 +49,7 @@ def get_bill_by_ma_hd(ma_hd):
     else :
         return jsonify({"message": "Not found bill"}),400
 
+@jwt_required()
 def get_all_bill_unpaid():
     hoadons = Hoadon.query.filter_by(tinhtrang='Chua thanh toan').all()
     if hoadons:
@@ -54,6 +57,7 @@ def get_all_bill_unpaid():
     else:
         return jsonify({"message": "Not found bill"}),400
 
+@jwt_required()
 def add_ma_kh_into_bill():
     data = request.json
     if data and ('ma_hd' in data) and ('ma_kh' in data):
@@ -78,6 +82,7 @@ def add_ma_kh_into_bill():
         else:
             return jsonify({"message": "Not found customer!"}),400
 
+@jwt_required()
 def add_tienmonan_into_bill(ma_hd):
     hoadon = Hoadon.query.filter_by(ma_hd=ma_hd).first()
     if hoadon and hoadon.tinhtrang == 'Chua thanh toan':
@@ -94,6 +99,7 @@ def add_tienmonan_into_bill(ma_hd):
         return jsonify({"message":"Not found detail bill!"}),400
     
 
+@jwt_required()
 def add_voucher():
     data = request.json
     if data and ('ma_hd' in data) and ('ma_voucher' in data):
@@ -120,6 +126,7 @@ def add_voucher():
     else:
         return jsonify({"message": "Request Error!"}),400
 
+@jwt_required()
 def thanh_toan_bill(ma_hd):
     hoadon = Hoadon.query.filter_by(ma_hd=ma_hd).first()
     if hoadon and hoadon.tinhtrang == 'Chua thanh toan':
@@ -147,6 +154,7 @@ def thanh_toan_bill(ma_hd):
 
 # Quản lí chi tiết hóa đơn
 
+@jwt_required()
 def add_monan_into_cthd():
     data = request.json
     if data and ('ma_hd' in data) and ('ma_mon' in data) and ('soluong' in data) :
@@ -178,6 +186,7 @@ def add_monan_into_cthd():
     else:
         return jsonify({"message": "Request Error!"}),400
 
+@jwt_required()
 def get_detail_bill_by_ma_hd(ma_hd):
     cthds = Cthd.query.filter_by(ma_hd=ma_hd).all()
     if cthds:
