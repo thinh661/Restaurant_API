@@ -57,6 +57,11 @@ def login_service():
         user = Users.query.filter_by(user_name = user_name).first()
         if user:
             role = user.role
+            if role =='Quan Ly' or role == 'Dau Bep':
+                if user.password == password:
+                    return jsonify({"message" : "Login Access!"},{"role": f"{role}"}),200 
+                else:
+                    return jsonify({"message" : "Password error!"}),401
             if check_password_hash(user.password,password) :
                 return jsonify({"message" : "Login Access!"},{"role": f"{role}"}),200
             else:
@@ -76,7 +81,7 @@ def change_password_service():
         password_new = generate_password_hash(password=password_new)
         
         if user :
-            if check_password_hash(user.password,password) :
+            if check_password_hash(user.password,password):
                 try:
                     user.password = password_new
                     db.session.commit()
