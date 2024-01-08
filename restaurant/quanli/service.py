@@ -263,6 +263,7 @@ def add_thuc_don():
     
 
 
+
 def get_all_thucdon():
     all_thucdon = Thucdon.query.all()
     if all_thucdon:
