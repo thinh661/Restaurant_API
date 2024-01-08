@@ -48,4 +48,7 @@ class CtorderSchema(ma.Schema):
     class Meta():
         fields = ('ma_phieu','ma_nl','soluong','thanhtien')
 
+class OrdercthdSchema(ma.Schema):
+    class Meta():
+        fields = ('ma_order','ma_hd','ten_mon','soluong','ten_ban','tinhtrang')
 

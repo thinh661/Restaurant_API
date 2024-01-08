@@ -164,4 +164,24 @@ class Ctorder(db.Model):
         self.thanhtien = thanhtien
         self.soluong = soluong
         
+class Ordercthd(db.Model):
+    ma_order = Column(Integer,primary_key=True)
+    ma_hd = Column(Integer)
+    ten_mon = Column(String(255), nullable=False)
+    soluong = Column(Integer)
+    ten_ban = Column(String(50))
+    tinhtrang = Column(String(255))
+    
+    def __init__(self,ma_order,ma_hd,ten_mon,soluong,ten_ban,tinhtrang='Chua thanh toan'):
+        self.ma_order = ma_order
+        self.ma_hd = ma_hd
+        self.ten_mon = ten_mon
+        self.ten_ban = ten_ban
+        self.soluong = soluong
+        self.tinhtrang = tinhtrang
+        
+        
+    
+    
+        
 

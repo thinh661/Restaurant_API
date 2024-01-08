@@ -1,5 +1,5 @@
 from flask import Blueprint
-from .service import create_bill,get_bill_by_ma_hd,add_ma_kh_into_bill,add_tienmonan_into_bill,add_voucher,thanh_toan_bill,add_monan_into_cthd,get_detail_bill_by_ma_hd,get_all_bill_unpaid
+from .service import create_bill,get_bill_by_ma_hd,add_ma_kh_into_bill,add_tienmonan_into_bill,add_voucher,thanh_toan_bill,add_monan_into_cthd,get_detail_bill_by_ma_hd,get_all_bill_unpaid,get_all_ordercthd_unpaid,finish_ordercthd
 
 
 hoadon = Blueprint("hoadon",__name__)
@@ -43,4 +43,12 @@ def add_monan_cthd():
 @hoadon.route('/api/cthd/<int:ma_hd>',methods=['GET'])
 def get_detail_bill_by_mahd(ma_hd):
     return get_detail_bill_by_ma_hd(ma_hd=ma_hd)
+
+@hoadon.route('/api/ordercthd/all-unpaid',methods=['GET'])
+def all_ordercthd_unpaid():
+    return get_all_ordercthd_unpaid()
+
+@hoadon.route('/api/ordercthd/finish-ordercthd/<int:ma_order>',methods=['PUT'])
+def finish_ordercthd_unpaid(ma_order):
+    return finish_ordercthd(ma_order=ma_order)
     

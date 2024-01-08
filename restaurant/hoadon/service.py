@@ -1,6 +1,6 @@
 from restaurant.extension import db
-from restaurant.restaurant_ma import KhachhangChema,NhanvienSchema,UsersChema,BanSchema,HoadonSchema,MonanSchema,VoucherSchema,CthdSchema
-from restaurant.models import Users,Nhanvien,Khachhang,Ban,Hoadon,Thucdon,Monan,Voucher,Cthd
+from restaurant.restaurant_ma import KhachhangChema,NhanvienSchema,UsersChema,BanSchema,HoadonSchema,MonanSchema,VoucherSchema,CthdSchema,OrdercthdSchema
+from restaurant.models import Users,Nhanvien,Khachhang,Ban,Hoadon,Thucdon,Monan,Voucher,Cthd,Ordercthd
 from flask import request,jsonify
 from sqlalchemy.sql import func
 import json
@@ -18,6 +18,8 @@ Hoadon_schema = HoadonSchema()
 Hoadons_schema = HoadonSchema(many=True)
 Cthds_schema = CthdSchema(many=True)
 Cthd_schema = CthdSchema()
+Ordercthds_schema = OrdercthdSchema(many=True)
+
 
 # Quản lí hóa đơn
 @jwt_required()
@@ -171,18 +173,30 @@ def add_monan_into_cthd():
             if check_cthd:
                 check_cthd.soluong += soluong
                 check_cthd.thanhtien += thanhtien
-                monan.soluong -= soluong
+                if monan.soluong > soluong:
+                    monan.soluong -= soluong
+                else:
+                    return jsonify({"message":"update soluong in monan error!"}),409
+                res = add_order_into_ordercthd(ma_hd=ma_hd,ma_mon=ma_mon,soluong=soluong)
+                if res == 1:
+                   return jsonify({"message":"Can't add ordercthd!"}),409 
                 db.session.commit()
                 return jsonify({"message":"Add success!"}),201
             else:
                 cthd = Cthd(ma_hd=ma_hd,ma_mon=ma_mon,soluong=soluong,thanhtien=thanhtien)
-                monan.soluong -= soluong
+                if monan.soluong > soluong:
+                    monan.soluong -= soluong
+                else:
+                    return jsonify({"message":"update soluong in monan error!"}),409
                 db.session.add(cthd)
+                res = add_order_into_ordercthd(ma_hd=ma_hd,ma_mon=ma_mon,soluong=soluong)
+                if res == 1:
+                   return jsonify({"message":"Can't add ordercthd!"}),409 
                 db.session.commit()
                 return jsonify({"message":"Add success!"}),201
         except Exception:
             db.session.rollback()
-            return jsonify({"message":"Can't add voucher!"}),409
+            return jsonify({"message":"Can't add into cthd!"}),409
     else:
         return jsonify({"message": "Request Error!"}),400
 
@@ -193,3 +207,50 @@ def get_detail_bill_by_ma_hd(ma_hd):
         return Cthds_schema.jsonify(cthds),200
     else:
         return jsonify({"message":"Detail bill is empty!"}),400
+
+
+def add_order_into_ordercthd(ma_hd,ma_mon,soluong):
+    try:
+        hoadon = Hoadon.query.filter_by(ma_hd=ma_hd).first()
+        ban = Ban.query.filter_by(ma_ban=hoadon.ma_ban).first()
+        ten_ban = ban.ten_ban
+        monan = Monan.query.filter_by(ma_mon=ma_mon).first()
+        ten_mon = monan.ten_mon
+        max_ma_order = db.session.query(func.max(Ordercthd.ma_order)).scalar()
+        ma_order = int(max_ma_order) + 1 if max_ma_order is not None else 1
+        ordercthd = Ordercthd(ma_order=ma_order,ma_hd=ma_hd,ten_mon=ten_mon,soluong=soluong,ten_ban=ten_ban,tinhtrang="Chua hoan thanh")
+        db.session.add(ordercthd)
+        return 0
+    except Exception:
+        db.session.rollback()
+        return 1
+    
+@jwt_required() 
+def get_all_ordercthd_unpaid():
+    ordercthds = Ordercthd.query.filter_by(tinhtrang="Chua hoan thanh").all()
+    if ordercthds:
+        return Ordercthds_schema.jsonify(ordercthds),200
+    else:
+        return jsonify({"message":"Not found!"}),404
+
+
+@jwt_required()
+def finish_ordercthd(ma_order):
+    if current_user.role != 'Quan Ly' and current_user.role != "Dau Bep" :
+        return jsonify({"message":"Unauthorized"}),403
+    ordercthd = Ordercthd.query.filter_by(ma_order=ma_order).first()
+    if ordercthd:
+        try:
+            if ordercthd.tinhtrang == "Da hoan thanh":
+                return jsonify({"message":"Can't finish!"}),409
+            ordercthd.tinhtrang = "Da hoan thanh"
+            db.session.commit()
+            return jsonify({"message":"Finish Access!"}),200
+        except Exception:
+            db.session.rollback()
+            return jsonify({"message":"Can't finish!"}),409
+    else:
+        return jsonify({"message":"Not found!"}),404  
+    
+
+    
