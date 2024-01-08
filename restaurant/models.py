@@ -76,13 +76,15 @@ class Monan(db.Model):
     ten_mon = Column(String(255), nullable=False)
     gia = Column(Float, nullable=False)
     soluong = Column(Integer)
+    hinhanh = Column(String(255))
 
-    def __init__(self,ma_mon, ma_td, ten_mon, gia, soluong=0):
+    def __init__(self,ma_mon, ma_td, ten_mon, gia,hinhanh, soluong=0):
         self.ma_td = ma_td
         self.ma_mon = ma_mon
         self.ten_mon = ten_mon
         self.gia = gia
         self.soluong = soluong
+        self.hinhanh = hinhanh
 
 class Hoadon(db.Model):
     ma_hd = Column(Integer,primary_key=True)

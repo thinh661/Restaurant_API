@@ -30,7 +30,7 @@ class ThucdonSchema(ma.Schema):
 
 class MonanSchema(ma.Schema):
     class Meta():
-        fields = ('ma_mon','ma_td','ten_mon','gia','soluong')
+        fields = ('ma_mon','ma_td','ten_mon','gia','soluong','hinhanh')
         
 class VoucherSchema(ma.Schema):
     class Meta():

@@ -5,7 +5,8 @@ from .service import (
     get_all_table, get_table_by_name, add_thuc_don, del_thuc_don,
     add_mon_an, del_mon_an, get_all_mon_an, get_infor_monan_by_mamon,
     get_infor_voucher, get_all_voucher,update_gia_monan,update_soluong_monan,
-    add_voucher,del_voucher,update_voucher,update_sl_voucher,finish_table,start_table
+    add_voucher,del_voucher,update_voucher,update_sl_voucher,finish_table,start_table,get_all_thucdon,
+    get_all_monan_by_ma_td,get_ten_thucdon_by_ma_td
 )
 from flask_jwt_extended import jwt_required
 
@@ -77,6 +78,18 @@ def add_td():
 @quanli.route('/api/thucdon/del-thuc-don/<int:ma_td>',methods=['DELETE'])
 def del_td(ma_td):
     return del_thuc_don(ma_td=ma_td)
+
+@quanli.route('/api/thucdon/all',methods=['GET'])
+def all_thucdon():
+    return get_all_thucdon()
+
+@quanli.route('/api/thucdon-monan/<int:ma_td>',methods=['GET'])
+def get_all_monan_by_matd(ma_td):
+    return get_all_monan_by_ma_td(ma_td=ma_td)
+        
+@quanli.route('/api/thucdon/ten_td/<int:ma_td>',methods=['GET'])
+def get_tentd_by_ma_td(ma_td):
+    return get_ten_thucdon_by_ma_td(ma_td=ma_td)
 
 # Quản lí món ăn
 

@@ -1,5 +1,5 @@
 from restaurant.extension import db
-from restaurant.restaurant_ma import KhachhangChema,NhanvienSchema,UsersChema,BanSchema,HoadonSchema,MonanSchema,VoucherSchema
+from restaurant.restaurant_ma import KhachhangChema,NhanvienSchema,UsersChema,BanSchema,HoadonSchema,MonanSchema,VoucherSchema,ThucdonSchema
 from restaurant.models import Users,Nhanvien,Khachhang,Ban,Hoadon,Thucdon,Monan,Voucher
 from flask import request,jsonify
 from sqlalchemy.sql import func
@@ -16,6 +16,7 @@ Monan_schema = MonanSchema()
 Monans_schema = MonanSchema(many=True)
 Voucher_schema = VoucherSchema()
 Vouchers_schema = VoucherSchema(many=True)
+Thucdons_schema = ThucdonSchema(many=True)
 
 
 # Quản lí nhân viên
@@ -260,8 +261,30 @@ def add_thuc_don():
     else :
         return jsonify({"message":"Request Error!"}),400
     
-@jwt_required()
 
+
+def get_all_thucdon():
+    all_thucdon = Thucdon.query.all()
+    if all_thucdon:
+        return Thucdons_schema.jsonify(all_thucdon),200
+    else:
+        return jsonify({"message":"Not found!"}),404
+    
+def get_ten_thucdon_by_ma_td(ma_td):
+    thucdon = Thucdon.query.filter_by(ma_td=ma_td).first()
+    if thucdon:
+        return jsonify({"ten_td":thucdon.ten_td}),200
+    else:
+        return jsonify({"message":"Not found!"}),404
+    
+def get_all_monan_by_ma_td(ma_td):
+    monans = Monan.query.filter_by(ma_td=ma_td).all()
+    if monans:
+        return Monans_schema.jsonify(monans),200
+    else:
+        return jsonify({"message":"Not found!"}),404
+
+@jwt_required()
 def del_thuc_don(ma_td):
     if current_user.role != 'Quan Ly':
         return jsonify({"message":"Unauthorized"}),403
@@ -286,7 +309,7 @@ def add_mon_an():
         return jsonify({"message":"Unauthorized"}),403
     data = request.json
     if data:
-        if ('ma_td' in data) and ('ten_mon' in data) and ('gia' in data):
+        if ('ma_td' in data) and ('ten_mon' in data) and ('gia' in data) and ('hinhanh' in data):
             check_monan = Monan.query.filter_by(ten_mon=data['ten_mon']).first()
             if check_monan:
                 return jsonify({"message":"ten_mon is exist!"}),409
@@ -296,8 +319,9 @@ def add_mon_an():
             ten_mon = data['ten_mon']
             gia = data['gia']
             soluong = 0
+            hinhanh = data['hinhanh']
             try :
-                monan = Monan(ma_mon=ma_mon,ma_td=ma_td,ten_mon=ten_mon,gia=gia,soluong=soluong)
+                monan = Monan(ma_mon=ma_mon,ma_td=ma_td,ten_mon=ten_mon,gia=gia,hinhanh=hinhanh,soluong=soluong)
                 db.session.add(monan)
                 db.session.commit()
             except Exception as e :
