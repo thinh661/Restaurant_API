@@ -18,7 +18,7 @@ class BanSchema(ma.Schema):
 
 class HoadonSchema(ma.Schema):
     class Meta():
-        fields = ('ma_hd','ma_kh','ma_ban','ngay','tienmonan','ma_voucher','tiengiam','tinh trang','loai')
+        fields = ('ma_hd','ma_kh','ma_ban','ngay','tienmonan','ma_voucher','tiengiam','tinhtrang','loai')
         
 class CthdSchema(ma.Schema):
     class Meta():
