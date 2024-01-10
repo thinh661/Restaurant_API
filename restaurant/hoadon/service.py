@@ -3,6 +3,8 @@ from restaurant.restaurant_ma import KhachhangChema,NhanvienSchema,UsersChema,Ba
 from restaurant.models import Users,Nhanvien,Khachhang,Ban,Hoadon,Thucdon,Monan,Voucher,Cthd,Ordercthd
 from flask import request,jsonify
 from sqlalchemy.sql import func
+from sqlalchemy import and_
+from datetime import timedelta,datetime
 import json
 from flask_jwt_extended import jwt_required,current_user
 
@@ -100,6 +102,30 @@ def add_tienmonan_into_bill(ma_hd):
     else:
         return jsonify({"message":"Not found detail bill!"}),400
     
+
+@jwt_required()
+def get_all_bill_by_day():
+    ngay_cu_the = datetime(2023, 12, 31)
+
+    hoadoans_trong_ngay = db.session.query(Hoadon).filter(
+    and_(
+        Hoadon.ngay >= ngay_cu_the,
+        Hoadon.ngay < ngay_cu_the + timedelta(days=1)
+        )
+    ).all()
+    if not hoadoans_trong_ngay:
+        return jsonify({"message":"Not found!"}),404
+    hoadoan_json_array = [
+    {
+        "ma_hd": hoadoan.ma_hd,
+        "ngay": hoadoan.ngay.strftime("%Y-%m-%d %H:%M:%S"),
+        "tienmonan": hoadoan.tienmonan,
+    }
+    for hoadoan in hoadoans_trong_ngay
+    ]
+
+    return jsonify(hoadoan_json_array),200
+
 
 @jwt_required()
 def add_voucher():
@@ -251,6 +277,3 @@ def finish_ordercthd(ma_order):
             return jsonify({"message":"Can't finish!"}),409
     else:
         return jsonify({"message":"Not found!"}),404  
-    
-
-    

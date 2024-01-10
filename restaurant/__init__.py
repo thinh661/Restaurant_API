@@ -1,7 +1,7 @@
 from flask import Flask,Blueprint,request,jsonify
 from .extension import db,ma,jwt
 from .models import Users,Nhanvien,Khachhang
-from .users.controller import users
+from .users.controller import users,get_revoked_token
 from .quanli.controller import quanli
 from .khachhang.controller import khachhang
 from .hoadon.controller import hoadon
@@ -40,5 +40,14 @@ def create_app(config_file = "config.py"):
     @jwt.unauthorized_loader
     def missing_token_callback(error):
         return jsonify({"error":"unauthorized_header"}),401
+    @jwt.token_in_blocklist_loader
+    def token_in_blocklist_callback(jwt_header,jwt_data):
+        jti = jwt_data['jti']
+        revoked_tokens = get_revoked_token()
+        return jti in revoked_tokens
+    @jwt.revoked_token_loader
+    def handle_revoked_token(jwt_header,jwt_data):
+        return jsonify({"message": "Token has been revoked"}), 401
+    
     
     return app
