@@ -31,6 +31,15 @@ def create_bill():
         ma_ban = data['ma_ban']
         max_ma_hd = db.session.query(func.max(Hoadon.ma_hd)).scalar()
         ma_hd = int(max_ma_hd) + 1 if max_ma_hd is not None else 1
+        if ma_ban == 14 or ma_ban == 15 :
+            try :
+                hoadon = Hoadon(ma_hd=ma_hd,ma_ban=ma_ban)
+                db.session.add(hoadon)
+                db.session.commit()
+                return jsonify({"message":"Bill Created!"}),201
+            except Exception as e :
+                db.session.rollback()
+                return jsonify({"message":f"Error : {e}"}),409
         check_hoadon = Hoadon.query.filter_by(ma_ban=ma_ban,tinhtrang='Chua thanh toan').first()
         if check_hoadon:
             return jsonify({"message":"Invoice cannot be created because this table has not yet paid!"}),409
