@@ -1,5 +1,5 @@
 from flask import Blueprint
-from .service import create_bill,get_bill_by_ma_hd,add_ma_kh_into_bill,add_tienmonan_into_bill,add_voucher,thanh_toan_bill,add_monan_into_cthd,get_detail_bill_by_ma_hd,get_all_bill_unpaid,get_all_ordercthd_unpaid,finish_ordercthd
+from .service import create_bill,get_bill_by_ma_hd,add_ma_kh_into_bill,add_tienmonan_into_bill,add_voucher,thanh_toan_bill,add_monan_into_cthd,get_detail_bill_by_ma_hd,get_all_bill_unpaid,get_all_ordercthd_unpaid,finish_ordercthd,get_all_bill_by_day,get_revenue_on_week
 
 
 hoadon = Blueprint("hoadon",__name__)
@@ -33,6 +33,14 @@ def update_voucher_bill():
 @hoadon.route('/api/hoadon/update-pay-bill/<int:ma_hd>',methods=['PUT'])
 def pay_bill(ma_hd):
     return thanh_toan_bill(ma_hd=ma_hd)
+
+@hoadon.route('/api/hoadon/get-bill/allday',methods=['GET'])
+def all_bill_by_day():
+    return get_all_bill_by_day()
+
+@hoadon.route('/api/hoadon/revenue/week',methods=['GET'])
+def revenue_on_week():
+    return get_revenue_on_week()
 
 # Quản lí chi tiết hóa đơn
 

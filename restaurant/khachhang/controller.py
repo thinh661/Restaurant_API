@@ -1,6 +1,6 @@
 from flask import Blueprint
 from .service import update_hoten,get_info_khach_hang
-from .service import book_seat,cancel_book_seat
+from .service import book_seat,cancel_book_seat,get_makh_by_user_name
 
 khachhang = Blueprint("khachhang",__name__)
 
@@ -19,3 +19,7 @@ def booking_seat(ten_ban):
 @khachhang.route('/api/khach-hang/cancel-book-seat/<string:ten_ban>',methods=['PUT'])
 def cancel_booking_seat(ten_ban):
     return cancel_book_seat(ten_ban=ten_ban)
+
+@khachhang.route('/api/khach-hang/infor/ma_kh/<string:user_name>',methods=['GET'])
+def get_ma_kh_by_user_name(user_name):
+    return get_makh_by_user_name(user_name=user_name)

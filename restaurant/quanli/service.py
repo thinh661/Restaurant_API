@@ -351,7 +351,7 @@ def del_mon_an(ma_mon):
         return jsonify({"message":"Not found Mon An!"}),404
     
     
-@jwt_required()
+
 def get_all_mon_an():
     all_monan = Monan.query.all()
     if all_monan:

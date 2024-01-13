@@ -72,3 +72,10 @@ def cancel_book_seat(ten_ban):
         return jsonify({"message":"Not found Table!"}),400
     
 
+@jwt_required()
+def get_makh_by_user_name(user_name):
+    user = Khachhang.query.filter_by(user_name=user_name).first()
+    if user:
+        return jsonify({"message": f"{user.ma_kh}"}),200
+    else:
+        return jsonify({"message":"Not found user!"}),404

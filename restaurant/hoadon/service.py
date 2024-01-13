@@ -114,7 +114,15 @@ def add_tienmonan_into_bill(ma_hd):
 
 @jwt_required()
 def get_all_bill_by_day():
-    ngay_cu_the = datetime(2023, 12, 31)
+    data = request.json
+    if data and ('year' in data) and ('month' in data) and ('day' in data):
+        year = data['year']
+        month = data['month']
+        day = data['day']
+    else :
+        return jsonify({"message":"Bad Request!"}),400
+        
+    ngay_cu_the = datetime(year, month, day)
 
     hoadoans_trong_ngay = db.session.query(Hoadon).filter(
     and_(
@@ -128,13 +136,40 @@ def get_all_bill_by_day():
     {
         "ma_hd": hoadoan.ma_hd,
         "ngay": hoadoan.ngay.strftime("%Y-%m-%d %H:%M:%S"),
-        "tienmonan": hoadoan.tienmonan,
+        "tienmonan": hoadoan.tienmonan - hoadoan.tiengiam,
     }
     for hoadoan in hoadoans_trong_ngay
     ]
+    res = 0
+    for i in hoadoan_json_array:
+        res += i['tienmonan']
 
-    return jsonify(hoadoan_json_array),200
+    return jsonify({f'{res}':hoadoan_json_array}),200
 
+
+@jwt_required()
+def get_revenue_on_week():
+    today = datetime.now()
+
+    
+    start_of_week = today - timedelta(days=today.weekday())
+
+    results = db.session.query(
+        func.date(Hoadon.ngay).label('ngay'),
+        func.sum(Hoadon.tienmonan - Hoadon.tiengiam).label('doanhthu')
+    ).filter(
+        Hoadon.ngay >= start_of_week
+    ).group_by(
+        func.date(Hoadon.ngay)
+    ).all()
+
+    revenue_by_day_json = [
+        {'ngay': result.ngay.strftime('%Y-%m-%d'), 'doanhthu': float(result.doanhthu)}
+        for result in results
+    ]
+
+    return jsonify(revenue_by_day=revenue_by_day_json),200
+    
 
 @jwt_required()
 def add_voucher():
